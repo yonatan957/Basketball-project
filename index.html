@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+    <script defer src="js/script.js"></script>
+</head>
+<body>
+    <div id="header">NBA FANTASY 2014-2024</div>
+    <H1 id="title">My Fantasy Team</H1>
+    <div id="playerContainor">
+        <div class="plyerDiv">
+            <h4>Point Guard</h4>
+            <div id="PG"></div>
+        </div>
+        <div class="plyerDiv">
+            <h4>Shooting Guard</h4>
+            <div id="SG"></div>
+        </div>
+        <div class="plyerDiv">
+            <h4>Small Forward</h4>
+            <div id="SF"></div>
+        </div>
+        <div class="plyerDiv">
+            <h4>Power Forward</h4>
+            <div id="PF"></div>
+        </div>
+        <div class="plyerDiv">
+            <h4>Center</h4>
+            <div id="C"></div>
+        </div>
+    </div>
+    <h1 id="title">NBA Player Search</h1>
+    <div id="details">
+        <div id="form">
+            <select name="" id="selectPosition">
+                <option value="PG">PG</option>
+                <option value="SG">SG</option>
+                <option value="SF">SF</option>
+                <option value="PF">PF</option>
+                <option value="C">C</option>
+            </select>
+            <div id="pointsInputDiv">            
+                <label for="range1">10000</label>
+                <input name="range1" type="range" min="0" max="20000" >
+            </div>
+            <div id="FGInputDiv">            
+                <label for="range1">20</label>
+                <input type="range" min="0" max="100" value="20">
+            </div>
+            <div id="PInputDiv">            
+                <label for="range1">20</label>
+                <input type="range" min="0" max="100" value="20">
+            </div>
+            <button id="SearchButton">Search Player</button>
+        </div>
+        <table>
+            <tr>
+              <th>Player</th>
+              <th>Position</th>
+              <th>Points</th>
+              <th>FG%</th>
+              <th>3P%</th>
+              <th>Action</th>
+            </tr>
+            <tr>
+              <td>Alfreds Futterkiste</td>
+              <td>Maria Anders</td>
+              <td>Germany</td>
+              <td>Centro comercial Moctezuma</td>
+              <td>Francisco Chang</td>
+              <td>Mexico</td>
+            </tr>
+          </table>
+    </div>
+</body>
+</html>
