@@ -21,28 +21,28 @@ const SG = document.querySelector("#SG");
 const SF = document.querySelector("#SF");
 const PF = document.querySelector("#PF");
 const C = document.querySelector("#C");
-// object with 5 types of players
-let players = {
-    PGPlayer: "didn't choose yet",
-    SGPlayer: "didn't choose yet",
-    SFPlayer: "didn't choose yet",
-    PFPlayer: "didn't choose yet",
-    CPlayer: "didn't choose yet"
-};
 const addRow = (player) => {
+    const firstname = player.playerName.split(" ")[0];
+    const tr = document.createElement("tr");
     const nameTd = document.createElement("td");
-    nameTD.innerText = player.playerName;
+    nameTd.innerText = player.playerName;
     const positionTD = document.createElement("td");
-    name.innerText = player.playerName;
+    positionTD.innerText = player.position;
+    const pointsTD = document.createElement("td");
+    pointsTD.innerText = player.points.toString();
     const FGTableTD = document.createElement("td");
-    name.innerText = player.playerName;
-    const name = document.createElement("td");
-    name.innerText = player.playerName;
-};
-const fillPlayers = () => {
-    [PG, SG, SF, PF, C].forEach(element => {
-        element.innerText = players[element.id + "Player"];
+    FGTableTD.innerText = player.twoPercent.toString();
+    const p3TableTd = document.createElement("td");
+    p3TableTd.innerText = player.threePercent.toString();
+    const button = document.createElement("button");
+    button.innerText = `Add ${firstname} to current team`;
+    button.addEventListener("click", () => {
+        addToMyList(player);
     });
+    const buttonTableTd = document.createElement("td");
+    buttonTableTd.append(button);
+    tr.append(nameTd, positionTD, pointsTD, FGTableTD, p3TableTd, buttonTableTd);
+    document.querySelector("table").append(tr);
 };
 const post = (arg2) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -61,7 +61,45 @@ const post = (arg2) => __awaiter(void 0, void 0, void 0, function* () {
         throw err;
     }
 });
-fillPlayers();
+const addToMyList = (player) => {
+    let whereToput;
+    switch (player.position) {
+        case "PG":
+            whereToput = PG;
+            break;
+        case "SG":
+            whereToput = SG;
+            break;
+        case "SF":
+            whereToput = SF;
+            break;
+        case "PF":
+            whereToput = PF;
+            break;
+        case "C":
+            whereToput = C;
+            break;
+        default:
+            whereToput = PG;
+    }
+    whereToput.innerHTML = "";
+    const p = document.createElement("p");
+    p.innerText = `name: ${player.playerName},
+        position: ${player.position},
+        points: ${player.points},
+        FG%: ${player.twoPercent},
+        3P%: ${player.threePercent}
+    `;
+    whereToput.append(p);
+};
+const deleteallFromTable = () => {
+    const table = document.querySelector("table");
+    const tds = table.querySelectorAll("td");
+    for (const td of tds) {
+        td.remove();
+    }
+};
+//make sure that the label next to the input shows the current value
 [pointsInputDiv, FGInputDiv, PInputDiv].forEach((div) => {
     const input = div.querySelector("input");
     const label = div.querySelector("label");
@@ -80,5 +118,22 @@ SearchButton.addEventListener("click", () => __awaiter(void 0, void 0, void 0, f
         twoPercent: parseInt(FGSend),
         points: parseInt(pointsSend)
     };
-    const playersToDisplay = yield post(send);
+    const playersToDisplay = (yield post(send)).filter((player) => {
+        return player.season.includes(2022) || player.season.includes(2023) || player.season.includes(2024);
+    });
+    deleteallFromTable();
+    if (playersToDisplay.length === 0) {
+        const td = document.createElement("td");
+        td.textContent = "we didn't find any player with your parameters";
+        let table = document.querySelector("table");
+        table.append(td);
+        for (let index = 0; index < 5; index++) {
+            let newtd = document.createElement("td");
+            newtd.textContent = "😭";
+            table.append(newtd);
+        }
+    }
+    for (const p of playersToDisplay) {
+        addRow(p);
+    }
 }));

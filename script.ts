@@ -11,20 +11,15 @@ const SG = document.querySelector("#SG") as HTMLDivElement
 const SF = document.querySelector("#SF") as HTMLDivElement
 const PF = document.querySelector("#PF") as HTMLDivElement
 const C = document.querySelector("#C") as HTMLDivElement
-// object with 5 types of players
-let players: { [key: string]: string } = {
-    PGPlayer:"didn't choose yet",
-    SGPlayer:"didn't choose yet",
-    SFPlayer:"didn't choose yet",
-    PFPlayer:"didn't choose yet",
-    CPlayer:"didn't choose yet"
-}
+
 interface Player {
     position: string,
     threePercent: number,
     twoPercent: number,
     points: number,
-    playerName:string
+    playerName:string,
+    season:number[]
+
 }
 interface Send {
     position: string,
@@ -34,20 +29,34 @@ interface Send {
 }
 
 const addRow = (player:Player) =>{
+    const firstname:string = player.playerName.split(" ")[0]
+    const tr = document.createElement("tr") as HTMLElement
+
     const nameTd = document.createElement("td") as HTMLElement
-    nameTD.innerText = player.playerName 
+    nameTd.innerText = player.playerName 
+
     const positionTD = document.createElement("td") as HTMLElement
-    name.innerText = player.playerName 
+    positionTD.innerText = player.position
+ 
+    const pointsTD = document.createElement("td") as HTMLElement
+    pointsTD.innerText = player.points.toString()
+
     const FGTableTD = document.createElement("td") as HTMLElement
-    name.innerText = player.playerName 
-    const name = document.createElement("td") as HTMLElement
-    name.innerText = player.playerName 
+    FGTableTD.innerText = player.twoPercent.toString()
+
+    const p3TableTd = document.createElement("td") as HTMLElement
+    p3TableTd.innerText = player.threePercent.toString()
     
-}
-const fillPlayers = ()=>{
-    [PG, SG, SF, PF, C].forEach(element => {
-        element.innerText = players[element.id + "Player"]
-    });
+    const button = document.createElement("button")
+    button.innerText = `Add ${firstname} to current team`
+    button.addEventListener("click" ,()=>{
+        addToMyList(player)
+    })
+    const buttonTableTd = document.createElement("td") as HTMLElement
+    buttonTableTd.append(button)
+    tr.append(nameTd, positionTD, pointsTD, FGTableTD, p3TableTd, buttonTableTd);
+
+    (document.querySelector("table") as HTMLTableElement).append(tr)
 }
 
 const post = async <T, S>(arg2:S):Promise<T> =>{
@@ -59,7 +68,6 @@ const post = async <T, S>(arg2:S):Promise<T> =>{
             },
             body: JSON.stringify(arg2)          
         })
-
         const obj:T = await res.json() 
         return obj
     }
@@ -69,16 +77,51 @@ const post = async <T, S>(arg2:S):Promise<T> =>{
     }
 }
 
+const addToMyList = (player: Player) =>{
+    let whereToput:HTMLDivElement;
+    switch(player.position){
+        case "PG":
+            whereToput = PG
+            break
+            
+        case "SG":
+            whereToput = SG
+            break
+            
+        case "SF":
+            whereToput = SF
+            break
+            
+        case "PF":
+            whereToput = PF
+            break
+            
+        case "C":
+            whereToput = C
+            break
+        default:
+            whereToput = PG
+    }
+    whereToput.innerHTML =""
+    const p = document.createElement("p")
+    p.innerText = `name: ${player.playerName},
+        position: ${player.position},
+        points: ${player.points},
+        FG%: ${player.twoPercent},
+        3P%: ${player.threePercent}
+    `
+    whereToput.append(p)
+}
+const deleteallFromTable = ()=>{
+    const table:HTMLTableElement = document.querySelector("table") as HTMLTableElement
+    const tds = table.querySelectorAll("td")
+    for (const td of tds) {
+        td.remove()
+    }
+}
 
 
-
-
-
-
-
-
-fillPlayers();
-
+//make sure that the label next to the input shows the current value
 [pointsInputDiv, FGInputDiv, PInputDiv].forEach((div)=>{
     const input = div.querySelector("input") as HTMLInputElement
     const label = div.querySelector("label") as HTMLLabelElement
@@ -86,6 +129,7 @@ fillPlayers();
         label.innerText = input.value
     })
 })
+
 SearchButton.addEventListener("click", async ()=>{
     const pointsSend =  (pointsInputDiv.querySelector("input") as HTMLInputElement).value;
     const FGSend =  (FGInputDiv.querySelector("input") as HTMLInputElement).value;
@@ -97,5 +141,23 @@ SearchButton.addEventListener("click", async ()=>{
         twoPercent:parseInt(FGSend),
         points:parseInt(pointsSend)
     }
-    const playersToDisplay:Player[] = await post<Player[], Send>(send)
+    const playersToDisplay:Player[] = (await post<Player[], Send>(send)).filter((player:Player)=>{
+        return player.season.includes(2022) || player.season.includes(2023) || player.season.includes(2024)  
+    })
+    deleteallFromTable()
+    if (playersToDisplay.length === 0){
+        const td = document.createElement("td") as HTMLElement;
+        
+        td.textContent = "we didn't find any player with your parameters";
+        let table = document.querySelector("table") as HTMLTableElement
+        table.append(td)
+        for (let index = 0; index < 5; index++) {
+            let newtd = document.createElement("td") as HTMLElement
+            newtd.textContent = "😭"
+            table.append(newtd)           
+        }
+    }
+    for (const p of playersToDisplay) {
+        addRow(p)
+    }
 })

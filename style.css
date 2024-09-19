@@ -6,7 +6,7 @@ body{
     align-items: center;
     justify-content: center;
     background-color: white;
-    gap: 20px;
+    gap: 10px;
 
 }
 #header{
@@ -23,11 +23,17 @@ body{
 #title{
     color: rgb(37 76 146);
 }
+.plyerDiv p{
+    font-size: large;
+}
 #playerContainor{
     display: flex;
     gap: 10px;
     width: 100%;
     justify-content: center;
+}
+#playerContainor h4{
+    color: rgb(23 64 139);
 }
 .plyerDiv{
     background-color:rgb(240 240 240) ;
@@ -39,9 +45,14 @@ body{
     border-radius: 5px;
     box-shadow: 0px 0px 3px 0px rgba(0,0,0,0.75);
 }
+#forTAble{
+    height: 300px;
+    width: 100%;
+    overflow: scroll;
+}
 #details{
     background-color: rgb(240 240 240);
-    padding: 20px;
+    padding: 0px 20px ;
     border-radius: 5px;
     box-shadow: 0px 0px 10px rgb(201, 198, 198);
 }
@@ -80,8 +91,16 @@ table {
     font-family: arial, sans-serif;
     border-collapse: collapse;
     width: 100%;
-  }
-  
+    overflow: scroll;
+}
+table button{
+    color: white;
+    background-color:rgb(23 64 139) ;
+    padding: 10px;
+    width: 80%;
+    border: none;
+    border-radius: 6px;
+}
   td, th {
     border: 1px solid #a19c9c;
     padding: 8px;
