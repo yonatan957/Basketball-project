@@ -11,15 +11,23 @@ const SG = document.querySelector("#SG") as HTMLDivElement
 const SF = document.querySelector("#SF") as HTMLDivElement
 const PF = document.querySelector("#PF") as HTMLDivElement
 const C = document.querySelector("#C") as HTMLDivElement
+//table
+const table:HTMLTableElement = document.querySelector("table") as HTMLTableElement
+//button of save
+const saveButton = document.querySelector("#saveTeam") as HTMLButtonElement
 
+//i give him the all fields because i need them for saving later
 interface Player {
     position: string,
     threePercent: number,
     twoPercent: number,
     points: number,
     playerName:string,
-    season:number[]
-
+    season:number[],
+    _id:string,
+    age:number,
+    games:number,
+    __v:number
 }
 interface Send {
     position: string,
@@ -59,16 +67,19 @@ const addRow = (player:Player) =>{
     (document.querySelector("table") as HTMLTableElement).append(tr)
 }
 
-const post = async <T, S>(arg2:S):Promise<T> =>{
+const post = async <T, S>(arg2:S ,andUrl:string = "filter"):Promise<T> =>{
     try{
-        const res = await fetch(BASE_URL + "/api/filter", {
+        const res = await fetch(BASE_URL + "/api/" + andUrl, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(arg2)          
         })
-        const obj:T = await res.json() 
+        if (andUrl === "AddTeam"){
+            return await res.json()
+        }
+        const obj:T = await res.json()
         return obj
     }
     catch(err){
@@ -110,16 +121,26 @@ const addToMyList = (player: Player) =>{
         FG%: ${player.twoPercent},
         3P%: ${player.threePercent}
     `
+    whereToput.dataset.playerName = player.playerName
     whereToput.append(p)
 }
 const deleteallFromTable = ()=>{
-    const table:HTMLTableElement = document.querySelector("table") as HTMLTableElement
     const tds = table.querySelectorAll("td")
     for (const td of tds) {
         td.remove()
     }
 }
-
+//if we didn't find players - we use addMassegeInTable() to show this to the user
+const addMassegeInTable = (massege:string)=>{
+    const td = document.createElement("td") as HTMLElement;       
+    td.textContent = massege;
+    table.append(td)
+    for (let index = 0; index < 5; index++) {
+        let newtd = document.createElement("td") as HTMLElement
+        newtd.textContent = "😭"
+        table.append(newtd)           
+    }
+}
 
 //make sure that the label next to the input shows the current value
 [pointsInputDiv, FGInputDiv, PInputDiv].forEach((div)=>{
@@ -146,18 +167,22 @@ SearchButton.addEventListener("click", async ()=>{
     })
     deleteallFromTable()
     if (playersToDisplay.length === 0){
-        const td = document.createElement("td") as HTMLElement;
-        
-        td.textContent = "we didn't find any player with your parameters";
-        let table = document.querySelector("table") as HTMLTableElement
-        table.append(td)
-        for (let index = 0; index < 5; index++) {
-            let newtd = document.createElement("td") as HTMLElement
-            newtd.textContent = "😭"
-            table.append(newtd)           
-        }
+        addMassegeInTable("we didn't find any player with your parameters")
     }
     for (const p of playersToDisplay) {
         addRow(p)
     }
+})
+
+
+saveButton.addEventListener("click", async ()=>{
+    const names:Player[] =[]
+    for (const d of  [PG, SG, SF, PF, C]) {
+        if(!d.dataset.playerName){alert("you don't have the whole team"); return}
+        let player = (await post<Player[],Send>({position:d.id,points:0,threePercent:0,twoPercent:0}))
+                        .filter((p=> p.playerName === d.dataset.playerName))[0];
+        names.push(player)                
+    }
+    let massage = await post<string, Player[]>(names, "AddTeam")
+    alert("team added succsesfully")
 })

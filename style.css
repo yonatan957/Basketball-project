@@ -112,3 +112,15 @@ th{
     color: white;
     text-align: center;
 }
+#saveTeam{
+    padding: 20px;
+    width: 20%;
+    border-radius: 6px;
+    border: none;
+    box-shadow: 0px 0px 3px rgb(204, 199, 199);
+
+}
+#saveTeam:hover{
+    box-shadow: 0px 0px 10px rgb(204, 199, 199);
+    background-color: rgb(146, 143, 143);
+}

@@ -21,6 +21,10 @@ const SG = document.querySelector("#SG");
 const SF = document.querySelector("#SF");
 const PF = document.querySelector("#PF");
 const C = document.querySelector("#C");
+//table
+const table = document.querySelector("table");
+//button of save
+const saveButton = document.querySelector("#saveTeam");
 const addRow = (player) => {
     const firstname = player.playerName.split(" ")[0];
     const tr = document.createElement("tr");
@@ -44,15 +48,18 @@ const addRow = (player) => {
     tr.append(nameTd, positionTD, pointsTD, FGTableTD, p3TableTd, buttonTableTd);
     document.querySelector("table").append(tr);
 };
-const post = (arg2) => __awaiter(void 0, void 0, void 0, function* () {
+const post = (arg2_1, ...args_1) => __awaiter(void 0, [arg2_1, ...args_1], void 0, function* (arg2, andUrl = "filter") {
     try {
-        const res = yield fetch(BASE_URL + "/api/filter", {
+        const res = yield fetch(BASE_URL + "/api/" + andUrl, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(arg2)
         });
+        if (andUrl === "AddTeam") {
+            return yield res.json();
+        }
         const obj = yield res.json();
         return obj;
     }
@@ -90,13 +97,24 @@ const addToMyList = (player) => {
         FG%: ${player.twoPercent},
         3P%: ${player.threePercent}
     `;
+    whereToput.dataset.playerName = player.playerName;
     whereToput.append(p);
 };
 const deleteallFromTable = () => {
-    const table = document.querySelector("table");
     const tds = table.querySelectorAll("td");
     for (const td of tds) {
         td.remove();
+    }
+};
+//if we didn't find players - we use addMassegeInTable() to show this to the user
+const addMassegeInTable = (massege) => {
+    const td = document.createElement("td");
+    td.textContent = massege;
+    table.append(td);
+    for (let index = 0; index < 5; index++) {
+        let newtd = document.createElement("td");
+        newtd.textContent = "😭";
+        table.append(newtd);
     }
 };
 //make sure that the label next to the input shows the current value
@@ -123,17 +141,23 @@ SearchButton.addEventListener("click", () => __awaiter(void 0, void 0, void 0, f
     });
     deleteallFromTable();
     if (playersToDisplay.length === 0) {
-        const td = document.createElement("td");
-        td.textContent = "we didn't find any player with your parameters";
-        let table = document.querySelector("table");
-        table.append(td);
-        for (let index = 0; index < 5; index++) {
-            let newtd = document.createElement("td");
-            newtd.textContent = "😭";
-            table.append(newtd);
-        }
+        addMassegeInTable("we didn't find any player with your parameters");
     }
     for (const p of playersToDisplay) {
         addRow(p);
     }
+}));
+saveButton.addEventListener("click", () => __awaiter(void 0, void 0, void 0, function* () {
+    const names = [];
+    for (const d of [PG, SG, SF, PF, C]) {
+        if (!d.dataset.playerName) {
+            alert("you don't have the whole team");
+            return;
+        }
+        let player = (yield post({ position: d.id, points: 0, threePercent: 0, twoPercent: 0 }))
+            .filter((p => p.playerName === d.dataset.playerName))[0];
+        names.push(player);
+    }
+    let massage = yield post(names, "AddTeam");
+    alert("team added succsesfully");
 }));
